@@ -1,0 +1,20 @@
+.settings-page {
+  padding-top: 48px;
+}
+
+.settings-card {
+  padding: 28px;
+  margin-top: 28px;
+}
+
+.settings-card h3 {
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+
+.settings-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+}

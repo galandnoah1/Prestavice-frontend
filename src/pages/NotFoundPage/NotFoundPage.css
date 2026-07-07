@@ -1,0 +1,21 @@
+.notfound-page {
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--color-gray-400);
+  text-align: center;
+  padding: 40px;
+}
+
+.notfound-page h1 {
+  font-size: 3rem;
+  color: var(--color-gray-900);
+}
+
+.notfound-page p {
+  color: var(--color-gray-500);
+  margin-bottom: 12px;
+}
