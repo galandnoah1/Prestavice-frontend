@@ -38,10 +38,10 @@ export default function PublishRequestPage() {
   return (
     <div className="section publish-page">
       <div className="container container-narrow">
-        <div className="section-header" style={{ textAlign: 'left', maxWidth: 'none', margin: '0 0 32px' }}>
+        <div className="section-header" style={{ textAlign: 'center', maxWidth: 'none', margin: '0 0 32px' }}>
           <span className="section-eyebrow">Publier une demande</span>
           <h2>Décrivez votre besoin</h2>
-          <p>Les artisans correspondant à votre métier et votre ville pourront vous contacter directement.</p>
+          <p style={{}}>Les artisans correspondant à votre métier et votre ville pourront vous contacter directement.</p>
         </div>
 
         <form className="card publish-form" onSubmit={handleSubmit}>
@@ -84,7 +84,7 @@ export default function PublishRequestPage() {
           </div>
 
           <button type="submit" className="btn btn-primary btn-block">
-            <Send size={16} /> Publier ma demande
+            Publier ma demande
           </button>
         </form>
       </div>

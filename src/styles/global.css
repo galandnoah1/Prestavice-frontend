@@ -6,24 +6,40 @@
 
 :root {
   /* Couleurs */
-  --color-primary: #000;
-  --color-primary-dark: #001;
-  --color-primary-light: #E9FBF1;
+/* Couleur principale (Bleu) */
+  --color-primary: #F57C00;
+  --color-primary-dark: #247D36;
+  --color-primary-light: #FFF3E5;
+
+  /* Couleur secondaire (Orange) */
+  --color-secondary: #F57C00;
+  --color-secondary-dark: #D96C00;
+  --color-secondary-light: #FFF3E5;
+
+  /* Couleur d'accent (Vert) */
+  --color-accent: #2E9E44;
+  --color-accent-dark: #247D36;
+  --color-accent-light: #EAF8EE;
+
+  /* Blanc */
   --color-white: #FFFFFF;
 
-  --color-gray-50: #FAFAFA;
-  --color-gray-100: #F3F4F4;
-  --color-gray-200: #E7E8E8;
-  --color-gray-300: #D3D5D5;
-  --color-gray-400: #A6A9A9;
-  --color-gray-500: #7C8080;
-  --color-gray-600: #575B5B;
-  --color-gray-700: #3D4040;
-  --color-gray-800: #232626;
-  --color-gray-900: #131515;
+  /* Gris */
+  --color-gray-50: #FAFBFC;
+  --color-gray-100: #F3F5F7;
+  --color-gray-200: #E6E9EC;
+  --color-gray-300: #D2D8DE;
+  --color-gray-400: #A8B1BA;
+  --color-gray-500: #7C8793;
+  --color-gray-600: #59636D;
+  --color-gray-700: #404851;
+  --color-gray-800: #252C34;
+  --color-gray-900: #111827;
 
-  --color-danger: #E4483F;
+  /* États */
+  --color-success: #2E9E44;
   --color-warning: #F5A623;
+  --color-danger: #E74C3C;
 
   /* Typographie */
   --font-display: 'Poppins', sans-serif;

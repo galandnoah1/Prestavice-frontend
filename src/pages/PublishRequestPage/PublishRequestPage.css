@@ -1,8 +1,13 @@
 .publish-page {
   padding-top: 56px;
   padding-bottom: 72px;
+
 }
+
 
 .publish-form {
   padding: 28px;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
 }

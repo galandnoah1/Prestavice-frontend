@@ -26,7 +26,7 @@ export const categories = [
   { id: 9, nom: 'Frigoriste', icon: Snowflake, count: 41 },
   { id: 10, nom: 'Peintre', icon: PaintBucket, count: 65 },
   { id: 11, nom: 'Soudeur', icon: Flame, count: 58 },
-  { id: 12, nom: 'Jardinier', icon: Sprout, count: 39 },
+ 
 ]
 
 export const artisans = [

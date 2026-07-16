@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="container navbar-inner">
         <Link to="/" className="navbar-logo">
 
-          Prestavice
+          <img src="/images/logo.png" alt="" width={170} />
         </Link>
 
         <nav className={`navbar-links ${open ? 'navbar-links-open' : ''}`}>

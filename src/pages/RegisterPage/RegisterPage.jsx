@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Briefcase, Mail, Phone, Lock, MapPin, Hammer, Check } from 'lucide-react'
+import { User, Briefcase, Mail, Phone, Lock, MapPin, Hammer, Check, HardHat } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { villes, professions } from '../../data/mockData.js'
 import './Auth.css'
@@ -32,11 +32,11 @@ export default function RegisterPage() {
           <button className="auth-role-card" onClick={() => setRole('client')}>
             <span className="auth-role-card-icon"><User size={22} /></span>
             <h3>Je suis client</h3>
-            <p>Je cherche un artisan pour un projet ou une réparation.</p>
+            <p>Je cherche un professionnel pour un projet ou une réparation.</p>
           </button>
           <button className="auth-role-card" onClick={() => setRole('artisan')}>
-            <span className="auth-role-card-icon"><Hammer size={22} /></span>
-            <h3>Je suis artisan</h3>
+            <span className="auth-role-card-icon"><HardHat size={22} /></span>
+            <h3>Je suis un professionnel</h3>
             <p>Je propose mes services et souhaite être visible.</p>
           </button>
         </div>
@@ -51,9 +51,9 @@ export default function RegisterPage() {
   return (
     <div>
       <button className="auth-back" onClick={() => setRole(null)}>Changer de profil</button>
-      <h1 className="auth-title">Inscription {role === 'client' ? 'client' : 'artisan'}</h1>
+      <h1 className="auth-title">Inscription {role === 'client' ? 'client' : 'pro'}</h1>
       <p className="auth-subtitle">
-        {role === 'client' ? 'Créez votre compte pour publier des demandes et contacter des artisans.' : 'Créez votre profil artisan et soyez visible auprès des clients.'}
+        {role === 'client' ? 'Créez votre compte pour publier des demandes et contacter des professionnels.' : 'Créez votre profil pro et soyez visible auprès des clients.'}
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             <div className="form-group">
               <label className="form-label">Ville</label>
               <div className="input-icon-wrap">
-                <MapPin size={16} />
+
                 <select className="form-select" value={form.ville} onChange={update('ville')} required>
                   <option value="">Sélectionner</option>
                   {villes.map((v) => <option key={v} value={v}>{v}</option>)}
@@ -124,7 +124,7 @@ export default function RegisterPage() {
             <div className="form-group">
               <label className="form-label">Profession</label>
               <div className="input-icon-wrap">
-                <Briefcase size={16} />
+
                 <select className="form-select" value={form.profession} onChange={update('profession')} required>
                   <option value="">Sélectionner</option>
                   {professions.map((p) => <option key={p} value={p}>{p}</option>)}

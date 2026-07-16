@@ -8,9 +8,9 @@ export default function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <div className="navbar-logo footer-logo">
-            Prestavice
+            <img src="/images/logo.png" alt="" width={100} />
           </div>
-          <p>La plateforme qui connecte clients et artisans qualifiés partout au Cameroun.</p>
+          <p>Des professionnels qualifiés à votre service</p>
           <div className="footer-social">
             <a href="#" aria-label="Facebook"><Facebook size={18} /></a>
             <a href="#" aria-label="Instagram"><Instagram size={18} /></a>

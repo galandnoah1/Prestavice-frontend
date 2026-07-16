@@ -8,15 +8,17 @@ export default function AuthLayout() {
       <div className="auth-layout-panel">
         <div className="auth-layout-content">
           <Link to="/" className="navbar-logo auth-layout-logo">
-            Prestavice
+            <img src="/images/logo.png" alt="" width={170} />
           </Link>
           <Outlet />
         </div>
       </div>
+
+
       <div className="auth-layout-visual">
-        <img src="https://placehold.co/900x1200" alt="" />
+        <img src="/images/register.png" alt="" />
         <div className="auth-layout-quote">
-          <p>"La plateforme qui rapproche les clients des meilleurs artisans du Cameroun."</p>
+
         </div>
       </div>
     </div>

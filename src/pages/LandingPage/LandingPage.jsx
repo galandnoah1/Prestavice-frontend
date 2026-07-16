@@ -9,19 +9,20 @@ import ArtisanCard from '../../components/ArtisanCard/ArtisanCard.jsx'
 import { categories, artisans, temoignages } from '../../data/mockData.js'
 import './LandingPage.css'
 
+
 const steps = [
-  { icon: Search, title: 'Rechercher un artisan', text: 'Filtrez par métier et par ville pour trouver le bon profil en quelques secondes.' },
+  { icon: Search, title: 'Rechercher un prestataire', text: 'Filtrez par métier et par ville pour trouver le bon profil en quelques secondes.' },
   { icon: UserCheck, title: 'Consulter son profil', text: 'Réalisations, avis clients et informations vérifiées, tout est réuni au même endroit.' },
   { icon: MessageCircle, title: 'Le contacter', text: 'Échangez directement par WhatsApp, téléphone ou e-mail, sans intermédiaire.' },
   { icon: Star, title: 'Noter la prestation', text: 'Partagez votre expérience pour aider les prochains clients à bien choisir.' },
 ]
 
 const avantages = [
-  { icon: Zap, title: 'Recherche rapide', text: 'Trouvez un artisan disponible en quelques clics, par métier et par ville.' },
-  { icon: ShieldCheck, title: 'Artisans vérifiés', text: 'Des profils contrôlés pour vous garantir des prestataires sérieux.' },
+  { icon: Zap, title: 'Recherche rapide', text: 'Trouvez un prestataire disponible en quelques clics, par métier et par ville.' },
+  { icon: ShieldCheck, title: 'Prestataires vérifiés', text: 'Des profils contrôlés pour vous garantir des prestataires sérieux.' },
   { icon: Star, title: 'Avis clients', text: 'Des retours authentiques laissés par de vrais clients.' },
-  { icon: MessagesSquare, title: 'Contact immédiat', text: 'Joignez un artisan directement, sans attendre de validation.' },
-  { icon: FileText, title: 'Publication de demandes', text: 'Décrivez votre besoin et laissez les artisans venir à vous.' },
+  { icon: MessagesSquare, title: 'Contact immédiat', text: 'Joignez un prestataire directement, sans attendre de validation.' },
+  { icon: FileText, title: 'Publication de demandes', text: 'Décrivez votre besoin et laissez les prestataires venir à vous.' },
   { icon: MapPinned, title: 'Plusieurs villes', text: 'Disponible à Douala, Yaoundé et dans de nombreuses autres villes.' },
 ]
 
@@ -31,24 +32,24 @@ export default function LandingPage() {
       <section className="hero">
         <div className="container hero-inner">
           <div className="hero-text">
-            <span className="section-eyebrow">Trouvez le bon artisan, au bon endroit</span>
-            <h1>Le bon artisan, à portée de main, partout au Cameroun</h1>
+            <h1>Des professionnels qualifiés à votre service.</h1>
             <p>
-              Prestavice connecte les clients aux artisans qualifiés de leur ville : plombiers,
+              Prestavice connecte les clients aux prestataires de service qualifiés de leur ville : plombiers,
               électriciens, couturiers, informaticiens et bien d'autres, disponibles en quelques clics.
             </p>
             <div className="hero-actions">
-              <Link to="/explorer" className="btn btn-primary">Trouver un artisan <ArrowRight size={16} /></Link>
-              <Link to="/inscription" className="btn btn-outline">Devenir artisan</Link>
+              <Link to="/explorer" className="btn btn-primary">Trouver un prestataire <ArrowRight size={16} /></Link>
+              <Link to="/inscription" className="btn btn-outline">Devenir prestataire</Link>
             </div>
             <div className="hero-stats">
-              <div><strong>1 200+</strong><span>Artisans actifs</span></div>
+              <div><strong>100+</strong><span>Pros actifs</span></div>
               <div><strong>10</strong><span>Villes couvertes</span></div>
               <div><strong>4,7/5</strong><span>Note moyenne</span></div>
             </div>
           </div>
           <div className="hero-image">
-            <img src="https://placehold.co/600x500" alt="Illustration Prestavice" />
+            <img src="/images/hero.png" alt="Illustration Prestavice" />
+
           </div>
         </div>
       </section>
@@ -64,7 +65,7 @@ export default function LandingPage() {
           <div className="section-header">
             <span className="section-eyebrow">Métiers populaires</span>
             <h2>Explorez les catégories les plus demandées</h2>
-            <p>Douze métiers, des centaines d'artisans disponibles près de chez vous.</p>
+            <p>Douze métiers, des centaines de professionnels disponibles près de chez vous.</p>
           </div>
           <div className="category-grid">
             {categories.map((cat) => (
@@ -79,7 +80,7 @@ export default function LandingPage() {
           <div className="section-header">
             <span className="section-eyebrow">Simple et rapide</span>
             <h2>Comment ça marche</h2>
-            <p>Quatre étapes suffisent pour trouver et contacter l'artisan qu'il vous faut.</p>
+            <p>Quatre étapes suffisent pour trouver et contacter le prestataire qu'il vous faut.</p>
           </div>
           <div className="steps-grid">
             {steps.map((step, i) => (
@@ -119,7 +120,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="section-header">
             <span className="section-eyebrow">Nouveaux talents</span>
-            <h2>Derniers artisans inscrits</h2>
+            <h2>Derniers prestataires inscrits</h2>
             <p>Découvrez les profils qui viennent de rejoindre Prestavice.</p>
           </div>
           <div className="artisan-grid">
@@ -128,7 +129,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="text-center mt-32">
-            <Link to="/explorer" className="btn btn-outline">Voir tous les artisans <ArrowRight size={16} /></Link>
+            <Link to="/explorer" className="btn btn-outline">Voir tous les professionnels <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
@@ -162,10 +163,10 @@ export default function LandingPage() {
       <section className="cta-band">
         <div className="container cta-band-inner">
           <div>
-            <h2>Vous êtes artisan ?</h2>
+            <h2>Vous êtes un prestataire ?</h2>
             <p>Rejoignez Prestavice et recevez des demandes de clients près de chez vous.</p>
           </div>
-          <Link to="/inscription" className="btn btn-primary">Créer mon profil artisan <ArrowRight size={16} /></Link>
+          <Link to="/inscription" className="btn btn-primary">Créer mon profil pro <ArrowRight size={16} /></Link>
         </div>
       </section>
     </>
