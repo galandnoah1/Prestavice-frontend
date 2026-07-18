@@ -71,8 +71,9 @@
 
 .artisan-page-bio {
   color: var(--color-gray-600);
-  font-size: 0.92rem;
+  font-size: 1rem;
   max-width: 640px;
+  margin-bottom: 10px;
 }
 
 .artisan-page-actions {
@@ -128,12 +129,9 @@
   top: calc(var(--navbar-height) + 24px);
 }
 
-.artisan-page-contact-card h3 {
-  font-size: 0.95rem;
-  margin-bottom: 14px;
-}
 
-.artisan-page-contact-card p {
+
+.contacts p {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -149,4 +147,18 @@
   .artisan-page-side { order: -1; }
   .artisan-page-header { flex-direction: column; align-items: center; text-align: center; }
   .artisan-page-meta { justify-content: center; }
+}
+
+.artisan-card-avatar-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #1B8A5A;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex-shrink: 0;
 }

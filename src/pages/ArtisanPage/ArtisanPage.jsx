@@ -1,48 +1,107 @@
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import {
-  Star, MapPin, Phone, Mail, MessageCircle, Flag, Images, MessagesSquare,
-} from 'lucide-react'
-import Gallery from '../../components/Gallery/Gallery.jsx'
+import { Star, MapPin, Phone, Mail, MessageCircle, Flag, Images, MessagesSquare } from 'lucide-react'
 import ReviewCard from '../../components/ReviewCard/ReviewCard.jsx'
-import { artisans, galerieArtisan, avisArtisan } from '../../data/mockData.js'
+import { artisanService } from '../../services/artisanService.js'
+import { avisService } from '../../services/avisService.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import './ArtisanPage.css'
 
 export default function ArtisanPage() {
   const { id } = useParams()
   const { user } = useAuth()
-  const artisan = artisans.find((a) => String(a.id) === id) || artisans[0]
-  const [note, setNote] = useState(0)
+
+  const [artisan, setArtisan] = useState(null)
+  const [avis, setAvis] = useState([])
+  const [averageRating, setAverageRating] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const [rating, setRating] = useState(0)
   const [commentaire, setCommentaire] = useState('')
   const [envoye, setEnvoye] = useState(false)
+  const [avisError, setAvisError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmitAvis = (e) => {
+  useEffect(() => {
+    Promise.all([
+      artisanService.getById(id),
+      avisService.getByArtisan(id),
+      avisService.getAverageRating(id),
+    ])
+      .then(([artisanData, avisData, avgData]) => {
+        setArtisan(artisanData)
+        setAvis(avisData)
+        setAverageRating(avgData)
+      })
+      .finally(() => setLoading(false))
+  }, [id])
+
+  const handleSubmitAvis = async (e) => {
     e.preventDefault()
-    setEnvoye(true)
+    setAvisError('')
+    setSubmitting(true)
+    try {
+      await avisService.create({
+        artisanId: id,
+        userId: user.id,
+        rating,
+        comment: commentaire,
+      })
+      setEnvoye(true)
+      const updatedAvis = await avisService.getByArtisan(id)
+      setAvis(updatedAvis)
+    } catch (err) {
+      setAvisError(err.response?.data?.responseMessage || 'Impossible de publier votre avis')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const whatsappLink = `https://wa.me/${artisan.telephone.replace(/\s|\+/g, '')}`
+  if (loading) return <p style={{ width: "200px", margin: "auto", }}>Chargement...</p>
+  if (!artisan) {
+    return (
+      <div className="section">
+        <div className="container container-narrow text-center">
+          <div className="empty-state">
+            <h3>Connectez-vous pour voir ce profil</h3>
+            <p>Vous devez avoir un compte Prestavice pour consulter les informations de ce prestataire.</p>
+            <div className="flex gap-8  mt-16" style={{ display: "flex", justifyContent: "center" }}>
+              <Link to="/connexion" className="btn btn-primary btn-sm">Se connecter</Link>
+              <Link to="/inscription" className="btn btn-outline btn-sm">Créer un compte</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const fullName = `${artisan.firstname} ${artisan.lastname}`
+  const initials = `${artisan.firstname?.[0] ?? ''}${artisan.lastname?.[0] ?? ''}`.toUpperCase()
+  const whatsappLink = `https://wa.me/${artisan.phoneNumber?.replace(/\s|\+/g, '')}`
 
   return (
     <div className="artisan-page">
-      <div className="artisan-page-cover">
-        <img src={artisan.cover} alt="" />
-      </div>
-
       <div className="container artisan-page-container">
         <div className="artisan-page-main">
-          <div className="artisan-page-header card">
-            <img src={artisan.photo} alt={artisan.nomProfessionnel} className="artisan-page-avatar" />
+          <div className="artisan-page-header">
+            <span className="artisan-card-avatar-initials">{initials}</span>
             <div className="artisan-page-headinfo">
-              <h1>{artisan.nomProfessionnel}</h1>
-              <p className="artisan-page-metier">{artisan.metier}</p>
+              <h1>{fullName}</h1>
+              <p className="artisan-page-metier">{artisan.service}</p>
               <div className="artisan-page-meta">
-                <span><MapPin size={14} /> {artisan.ville}</span>
-                <span><Star size={14} fill="currentColor" className="rating-star" /> {artisan.note} ({artisan.avis} avis)</span>
-                {artisan.disponible && <span className="badge badge-success">Disponible</span>}
+                <span><MapPin size={14} /> {artisan.city}</span>
+                <span>
+                  <Star size={14} fill="currentColor" className="rating-star" />
+                  {averageRating !== null ? averageRating.toFixed(1) : '—'} ({avis.length} avis)
+                </span>
               </div>
               <p className="artisan-page-bio">{artisan.bio}</p>
+
+              <div className="contacts">
+                <p><Phone size={14} /> {artisan.phoneNumber}</p>
+                <p><Mail size={14} /> {artisan.email}</p>
+              </div>
             </div>
           </div>
 
@@ -50,24 +109,24 @@ export default function ArtisanPage() {
             <a href={whatsappLink} target="_blank" rel="noreferrer" className="btn btn-primary">
               <MessageCircle size={16} /> Contacter sur WhatsApp
             </a>
-            <a href={`tel:${artisan.telephone}`} className="btn btn-outline">
+            <a href={`tel:${artisan.phoneNumber}`} className="btn btn-outline">
               <Phone size={16} /> Appeler
             </a>
             <a href={`mailto:${artisan.email}`} className="btn btn-outline">
               <Mail size={16} /> Envoyer un e-mail
             </a>
-            <button className="btn btn-ghost artisan-page-report">
+            <button className="btn btn-ghost artisan-page-report" disabled>
               <Flag size={16} /> Signaler cet artisan
             </button>
           </div>
 
           <section className="artisan-page-section">
             <h2><Images size={18} /> Réalisations</h2>
-            <Gallery images={galerieArtisan} />
+            <p className="text-muted">Bientôt disponible.</p>
           </section>
 
           <section className="artisan-page-section">
-            <h2><MessagesSquare size={18} /> Avis clients ({avisArtisan.length})</h2>
+            <h2><MessagesSquare size={18} /> Avis clients ({avis.length})</h2>
 
             {user ? (
               !envoye ? (
@@ -75,8 +134,8 @@ export default function ArtisanPage() {
                   <p className="form-label">Votre note</p>
                   <div className="review-form-stars">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <button type="button" key={i} onClick={() => setNote(i + 1)}>
-                        <Star size={22} fill={i < note ? 'currentColor' : 'none'} />
+                      <button type="button" key={i} onClick={() => setRating(i + 1)}>
+                        <Star size={22} fill={i < rating ? 'currentColor' : 'none'} />
                       </button>
                     ))}
                   </div>
@@ -90,7 +149,10 @@ export default function ArtisanPage() {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary" disabled={note === 0}>Publier mon avis</button>
+                  {avisError && <p className="auth-error">{avisError}</p>}
+                  <button type="submit" className="btn btn-primary" disabled={rating === 0 || submitting}>
+                    {submitting ? 'Publication...' : 'Publier mon avis'}
+                  </button>
                 </form>
               ) : (
                 <div className="review-form card text-center">
@@ -106,19 +168,10 @@ export default function ArtisanPage() {
             )}
 
             <div className="review-list mt-24">
-              {avisArtisan.map((r) => <ReviewCard key={r.id} review={r} />)}
+              {avis.map((a) => <ReviewCard key={a.id} review={a} />)}
             </div>
           </section>
         </div>
-
-        <aside className="artisan-page-side">
-          <div className="card artisan-page-contact-card">
-            <h3>Coordonnées</h3>
-            <p><Phone size={14} /> {artisan.telephone}</p>
-            <p><Mail size={14} /> {artisan.email}</p>
-            <p><MapPin size={14} /> {artisan.ville}</p>
-          </div>
-        </aside>
       </div>
     </div>
   )

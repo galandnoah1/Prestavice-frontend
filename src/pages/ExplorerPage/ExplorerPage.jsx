@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, RotateCcw, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
 import ArtisanCard from '../../components/ArtisanCard/ArtisanCard.jsx'
-import { artisans, villes, professions } from '../../data/mockData.js'
+import { artisanService } from '../../services/artisanService.js'
+import { cityService } from '../../services/cityService.js'
+import { serviceService } from '../../services/serviceService.js'
 import './ExplorerPage.css'
 
 const PAGE_SIZE = 6
@@ -11,19 +13,32 @@ export default function ExplorerPage() {
   const [searchParams] = useSearchParams()
   const [metier, setMetier] = useState(searchParams.get('metier') || '')
   const [ville, setVille] = useState(searchParams.get('ville') || '')
-  const [noteMin, setNoteMin] = useState('')
-  const [disponible, setDisponible] = useState(false)
   const [page, setPage] = useState(1)
 
-  const results = useMemo(() => {
-    return artisans.filter((a) => {
-      if (metier && a.metier !== metier) return false
-      if (ville && a.ville !== ville) return false
-      if (noteMin && a.note < Number(noteMin)) return false
-      if (disponible && !a.disponible) return false
-      return true
-    })
-  }, [metier, ville, noteMin, disponible])
+  const [villes, setVilles] = useState([])
+  const [professions, setProfessions] = useState([])
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    cityService.getAll().then(setVilles).catch(() => { })
+    serviceService.getAll().then(setProfessions).catch(() => { })
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    setError('')
+
+    const fetchResults = metier && ville
+      ? artisanService.getByCityAndService(ville, metier)
+      : artisanService.getAll()
+
+    fetchResults
+      .then(setResults)
+      .catch(() => setError('Impossible de charger les artisans'))
+      .finally(() => setLoading(false))
+  }, [metier, ville])
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
   const pageResults = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -31,8 +46,6 @@ export default function ExplorerPage() {
   const reset = () => {
     setMetier('')
     setVille('')
-    setNoteMin('')
-    setDisponible(false)
     setPage(1)
   }
 
@@ -41,11 +54,11 @@ export default function ExplorerPage() {
       <div className="container">
         <div className="section-header explorer-header">
           <span className="section-eyebrow">Explorer</span>
-          <h2>Trouvez l'artisan qu'il vous faut</h2>
+          <h2>Trouvez le prestataire qu'il vous faut</h2>
           <p>{results.length} artisan{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}</p>
         </div>
 
-        <div className="explorer-filters card">
+        <div className="explorer-filters ">
           <div className="explorer-filters-title"><SlidersHorizontal size={16} /> Filtres</div>
           <div className="explorer-filters-grid">
             <select className="form-select" value={metier} onChange={(e) => { setMetier(e.target.value); setPage(1) }}>
@@ -56,31 +69,28 @@ export default function ExplorerPage() {
               <option value="">Toutes les villes</option>
               {villes.map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
-            <select className="form-select" value={noteMin} onChange={(e) => { setNoteMin(e.target.value); setPage(1) }}>
-              <option value="">Note minimale</option>
-              <option value="4.5">4.5 et plus</option>
-              <option value="4">4 et plus</option>
-              <option value="3">3 et plus</option>
-            </select>
-            <label className="explorer-check">
-              <input type="checkbox" checked={disponible} onChange={(e) => { setDisponible(e.target.checked); setPage(1) }} />
-              Disponible maintenant
-            </label>
-            <button className="btn btn-outline btn-sm" onClick={reset}>
+            <button className="btn btn-outline" onClick={reset}>
               <RotateCcw size={15} /> Réinitialiser
             </button>
           </div>
+          {(metier && !ville) || (!metier && ville) ? (
+            <p className="form-help mt-8">Sélectionnez un métier et une ville pour filtrer, ou aucun des deux pour voir tous les prestataires.</p>
+          ) : null}
         </div>
 
-        {pageResults.length > 0 ? (
+        {error && <p className="auth-error">{error}</p>}
+
+        {loading ? (
+          <p>Chargement...</p>
+        ) : pageResults.length > 0 ? (
           <div className="artisan-grid explorer-grid">
             {pageResults.map((a) => <ArtisanCard key={a.id} artisan={a} showBio />)}
           </div>
         ) : (
           <div className="empty-state">
             <SearchX size={40} />
-            <h3>Aucun artisan trouvé</h3>
-            <p>Essayez d'élargir vos critères de recherche.</p>
+            <h3>Aucun prestataire trouvé</h3>
+            <p>Nous sommes en pleine campagne de communication pour attirer davantage de prestataire.</p>
           </div>
         )}
 

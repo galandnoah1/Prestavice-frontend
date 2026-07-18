@@ -1,25 +1,77 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, Briefcase, Mail, Phone, Lock, MapPin, Hammer, Check, HardHat } from 'lucide-react'
+import { User, Briefcase, Mail, Phone, Lock, FileText, Check, HardHat } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { villes, professions } from '../../data/mockData.js'
+import { authService } from '../../services/authService.js'
+import { artisanService } from '../../services/artisanService.js'
+import { cityService } from '../../services/cityService.js'
+import { serviceService } from '../../services/serviceService.js'
 import './Auth.css'
 
 export default function RegisterPage() {
   const [role, setRole] = useState(null)
   const [form, setForm] = useState({
-    username: '', nomProfessionnel: '', email: '', telephone: '',
-    password: '', confirmPassword: '', ville: '', profession: '',
+    firstname: '', lastname: '', email: '', telephone: '',
+    password: '', confirmPassword: '', ville: '', profession: '', bio: '',
   })
-  const { register } = useAuth()
+  const [villes, setVilles] = useState([])
+  const [professions, setProfessions] = useState([])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { login } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (role === 'artisan') {
+      cityService.getAll().then(setVilles).catch(() => { })
+      serviceService.getAll().then(setProfessions).catch(() => { })
+    }
+  }, [role])
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    register({ ...form, role })
-    navigate(role === 'artisan' ? '/dashboard-artisan' : '/dashboard-client')
+    setError('')
+
+    if (form.password !== form.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas')
+      return
+    }
+
+    setLoading(true)
+    try {
+      if (role === 'client') {
+        await authService.register({
+          firstname: form.firstname,
+          lastname: form.lastname,
+          email: form.email,
+          password: form.password,
+          role: 'ROLE_USER',
+        })
+      } else {
+        await artisanService.register({
+          user: {
+            firstname: form.firstname,
+            lastname: form.lastname,
+            email: form.email,
+            password: form.password,
+            role: 'ROLE_ARTISAN',
+          },
+          phoneNumber: form.telephone,
+          city: form.ville,
+          service: form.profession,
+          bio: form.bio,
+        })
+      }
+
+      await login(form.email, form.password)
+      navigate(role === 'artisan' ? '/dashboard-artisan' : '/dashboard-client')
+    } catch (err) {
+      setError(err.response?.data?.responseMessage || 'Une erreur est survenue')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (!role) {
@@ -57,23 +109,22 @@ export default function RegisterPage() {
       </p>
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label className="form-label">Nom d'utilisateur</label>
-          <div className="input-icon-wrap">
-            <User size={16} />
-            <input className="form-input" placeholder="Votre pseudo" value={form.username} onChange={update('username')} required />
-          </div>
-        </div>
-
-        {role === 'artisan' && (
+        <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Nom professionnel</label>
+            <label className="form-label">Prénom</label>
             <div className="input-icon-wrap">
-              <Briefcase size={16} />
-              <input className="form-input" placeholder="Ex : Jean-Paul Etoundi Plomberie" value={form.nomProfessionnel} onChange={update('nomProfessionnel')} required />
+              <User size={16} />
+              <input className="form-input" placeholder="Votre prénom" value={form.firstname} onChange={update('firstname')} required />
             </div>
           </div>
-        )}
+          <div className="form-group">
+            <label className="form-label">Nom</label>
+            <div className="input-icon-wrap">
+              <User size={16} />
+              <input className="form-input" placeholder="Votre nom" value={form.lastname} onChange={update('lastname')} required />
+            </div>
+          </div>
+        </div>
 
         <div className="form-group">
           <label className="form-label">Adresse e-mail</label>
@@ -110,32 +161,37 @@ export default function RegisterPage() {
         </div>
 
         {role === 'artisan' && (
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Ville</label>
-              <div className="input-icon-wrap">
-
+          <>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Ville</label>
                 <select className="form-select" value={form.ville} onChange={update('ville')} required>
                   <option value="">Sélectionner</option>
                   {villes.map((v) => <option key={v} value={v}>{v}</option>)}
                 </select>
               </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Profession</label>
-              <div className="input-icon-wrap">
-
+              <div className="form-group">
+                <label className="form-label">Profession</label>
                 <select className="form-select" value={form.profession} onChange={update('profession')} required>
                   <option value="">Sélectionner</option>
                   {professions.map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
             </div>
-          </div>
+
+            <div className="form-group">
+              <label className="form-label">Bio</label>
+              <div className="input-icon-wrap">
+                <textarea className="form-textarea" placeholder="Présentez votre activité, votre expérience" value={form.bio} onChange={update('bio')} required />
+              </div>
+            </div>
+          </>
         )}
 
-        <button type="submit" className="btn btn-primary btn-block mt-16">
-          <Check size={16} /> Créer mon compte
+        {error && <p className="auth-error">{error}</p>}
+
+        <button type="submit" className="btn btn-primary btn-block mt-16" disabled={loading}>
+          {loading ? 'Création...' : 'Créer mon compte'}
         </button>
       </form>
 

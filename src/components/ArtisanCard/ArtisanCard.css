@@ -1,11 +1,12 @@
 .artisan-card {
   background: var(--color-white);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-primary-dark);
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: box-shadow var(--transition), transform var(--transition);
   display: flex;
   flex-direction: column;
+  padding-block-start: 15px;
 }
 
 .artisan-card:hover {
@@ -103,4 +104,18 @@
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--color-warning);
+}
+
+.artisan-card-avatar-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #1B8A5A;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex-shrink: 0;
 }

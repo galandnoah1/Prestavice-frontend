@@ -1,14 +1,31 @@
+
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Search, UserCheck, MessageCircle, Star, Zap, ShieldCheck,
   MessagesSquare, FileText, MapPinned, ArrowRight,
+  Wrench, Hammer, Paintbrush, Home, Snowflake, Car, Sparkles, Leaf, Monitor,
 } from 'lucide-react'
 import SearchBar from '../../components/SearchBar/SearchBar.jsx'
 import CategoryCard from '../../components/CategoryCard/CategoryCard.jsx'
 import ArtisanCard from '../../components/ArtisanCard/ArtisanCard.jsx'
-import { categories, artisans, temoignages } from '../../data/mockData.js'
+import { artisanService } from '../../services/artisanService.js'
+import { serviceService } from '../../services/serviceService.js'
+import { temoignages } from '../../data/mockData.js'
 import './LandingPage.css'
 
+const serviceIcons = {
+  'Plomberie': Wrench,
+  'Électricité': Zap,
+  'Menuiserie': Hammer,
+  'Peinture': Paintbrush,
+  'Maçonnerie': Home,
+  'Climatisation': Snowflake,
+  'Mécanique auto': Car,
+  'Ménage à domicile': Sparkles,
+  'Jardinage': Leaf,
+  'Informatique / Dépannage PC': Monitor,
+}
 
 const steps = [
   { icon: Search, title: 'Rechercher un prestataire', text: 'Filtrez par métier et par ville pour trouver le bon profil en quelques secondes.' },
@@ -27,6 +44,38 @@ const avantages = [
 ]
 
 export default function LandingPage() {
+  const [categories, setCategories] = useState([])
+  const [recentArtisans, setRecentArtisans] = useState([])
+  const [proCount, setProCount] = useState(0)
+  const [villeCount, setVilleCount] = useState(0)
+
+  useEffect(() => {
+    Promise.all([serviceService.getAll(), artisanService.getAll()])
+      .then(([services, artisans]) => {
+        const counts = artisans.reduce((acc, a) => {
+          acc[a.service] = (acc[a.service] || 0) + 1
+          return acc
+        }, {})
+
+        setCategories(
+          services.map((nom) => ({
+            nom,
+            icon: serviceIcons[nom] || Wrench,
+            count: counts[nom] || 0,
+          }))
+        )
+
+        setProCount(artisans.length)
+        setVilleCount(new Set(artisans.map((a) => a.city)).size)
+
+        const sorted = [...artisans].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        )
+        setRecentArtisans(sorted.slice(0, 4))
+      })
+      .catch(() => { })
+  }, [])
+
   return (
     <>
       <section className="hero">
@@ -42,14 +91,13 @@ export default function LandingPage() {
               <Link to="/inscription" className="btn btn-outline">Devenir prestataire</Link>
             </div>
             <div className="hero-stats">
-              <div><strong>100+</strong><span>Pros actifs</span></div>
-              <div><strong>10</strong><span>Villes couvertes</span></div>
+              <div><strong>{proCount}+</strong><span>Pros actifs</span></div>
+              <div><strong>{villeCount}</strong><span>Villes couvertes</span></div>
               <div><strong>4,7/5</strong><span>Note moyenne</span></div>
             </div>
           </div>
           <div className="hero-image">
             <img src="/images/hero.png" alt="Illustration Prestavice" />
-
           </div>
         </div>
       </section>
@@ -65,11 +113,11 @@ export default function LandingPage() {
           <div className="section-header">
             <span className="section-eyebrow">Métiers populaires</span>
             <h2>Explorez les catégories les plus demandées</h2>
-            <p>Douze métiers, des centaines de professionnels disponibles près de chez vous.</p>
+
           </div>
           <div className="category-grid">
             {categories.map((cat) => (
-              <CategoryCard key={cat.id} category={cat} />
+              <CategoryCard key={cat.nom} category={cat} />
             ))}
           </div>
         </div>
@@ -124,7 +172,7 @@ export default function LandingPage() {
             <p>Découvrez les profils qui viennent de rejoindre Prestavice.</p>
           </div>
           <div className="artisan-grid">
-            {artisans.slice(0, 4).map((a) => (
+            {recentArtisans.map((a) => (
               <ArtisanCard key={a.id} artisan={a} />
             ))}
           </div>
