@@ -1,13 +1,11 @@
-
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8082/api/v1",
+  baseURL: "https://prestavice-backend.onrender.com/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
 });
-
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -17,7 +15,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default axiosInstance;
