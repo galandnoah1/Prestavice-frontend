@@ -68,7 +68,7 @@ export default function ExplorerPage() {
 
         artisanService.getNearby(latitude, longitude, 20)
           .then(setResults)
-          .catch(() => setError('Impossible de charger les artisans à proximité'))
+          .catch(() => setError(''))
           .finally(() => {
             setLoading(false)
             setGeoLoading(false)
