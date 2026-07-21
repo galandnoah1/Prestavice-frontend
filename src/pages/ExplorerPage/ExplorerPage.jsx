@@ -208,7 +208,7 @@ export default function ExplorerPage() {
                       },
                     }}
                   >
-                    <Tooltip permanent direction="top" offset={[0, 15]} >
+                    <Tooltip permanent direction="top" offset={[0, -35]} >
                       {a.firstname} - {a.service}
                     </Tooltip>
                   </Marker>
