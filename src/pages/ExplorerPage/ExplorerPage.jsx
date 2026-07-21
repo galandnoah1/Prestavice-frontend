@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet'
+import {
+  Wrench, Zap, Hammer, Paintbrush, Building2, Snowflake,
+  Scissors, Sparkles, Cpu, FileCheck2,
+} from 'lucide-react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import L from 'leaflet'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -36,6 +41,32 @@ const artisanIcon = new L.Icon({
   popupAnchor: [1, -34],
   className: 'artisan-marker',
 })
+
+const serviceIcons = {
+  'Plomberie': Wrench,
+  'Électricité': Zap,
+  'Menuiserie': Hammer,
+  'Peinture': Paintbrush,
+  'Maçonnerie': Building2,
+  'Climatisation': Snowflake,
+  'Coiffure': Scissors,
+  'Ménage à domicile': Sparkles,
+  'Informatique/Electronique': Cpu,
+  'Certification et legalisation': FileCheck2,
+}
+
+const createArtisanIcon = (artisan) => {
+  const IconComponent = serviceIcons[artisan.service] || Wrench
+  const iconHtml = renderToStaticMarkup(<IconComponent size={16} color="white" />)
+
+  return L.divIcon({
+    className: 'custom-artisan-marker',
+    html: `<div class="artisan-pin"><span>${iconHtml}</span></div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+  })
+}
 
 export default function ExplorerPage() {
   const [searchParams] = useSearchParams()
@@ -163,7 +194,10 @@ export default function ExplorerPage() {
               </Marker>
               {results.map((a) => (
                 a.latitude && a.longitude ? (
-                  <Marker key={a.id} position={[a.latitude, a.longitude]} icon={artisanIcon}
+                  <Marker
+                    key={a.id}
+                    position={[a.latitude, a.longitude]}
+                    icon={createArtisanIcon(a)}
                     eventHandlers={{
                       click: () => {
                         const phone = a.phoneNumber?.replace(/\s|\+/g, '')
@@ -175,7 +209,7 @@ export default function ExplorerPage() {
                     }}
                   >
                     <Tooltip permanent direction="top" offset={[0, -10]}>
-                      {a.firstname} — {a.service}
+                      {a.firstname}
                     </Tooltip>
                   </Marker>
                 ) : null

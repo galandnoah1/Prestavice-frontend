@@ -177,3 +177,23 @@
 .artisan-marker {
   filter: hue-rotate(150deg) saturate(2);
 }
+
+.artisan-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-primary);
+  transform: rotate(45deg);
+  box-shadow: var(--shadow-md);
+  border: 2px solid white;
+}
+
+.artisan-pin span {
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
