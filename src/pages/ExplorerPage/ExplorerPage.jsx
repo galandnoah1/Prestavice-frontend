@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import 'leaflet/dist/leaflet.css'
 
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-})
+
+
 import { SlidersHorizontal, RotateCcw, ChevronLeft, ChevronRight, SearchX, LocateFixed } from 'lucide-react'
 import ArtisanCard from '../../components/ArtisanCard/ArtisanCard.jsx'
 import { artisanService } from '../../services/artisanService.js'
@@ -22,6 +18,24 @@ import 'leaflet/dist/leaflet.css'
 import './ExplorerPage.css'
 
 const PAGE_SIZE = 6
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+})
+
+
+const artisanIcon = new L.Icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  className: 'artisan-marker',
+})
 
 export default function ExplorerPage() {
   const [searchParams] = useSearchParams()
@@ -149,11 +163,20 @@ export default function ExplorerPage() {
               </Marker>
               {results.map((a) => (
                 a.latitude && a.longitude ? (
-                  <Marker key={a.id} position={[a.latitude, a.longitude]}>
-                    <Popup>
-                      {a.firstname} {a.lastname} — {a.service}
-                      {a.distanceKm != null && <><br />{a.distanceKm.toFixed(1)} km</>}
-                    </Popup>
+                  <Marker key={a.id} position={[a.latitude, a.longitude]} icon={artisanIcon}
+                    eventHandlers={{
+                      click: () => {
+                        const phone = a.phoneNumber?.replace(/\s|\+/g, '')
+                        const message = encodeURIComponent(
+                          `Bonjour, je vous ai trouvé sur Prestavice et je suis intéressé par vos services de ${a.service}.`
+                        )
+                        window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+                      },
+                    }}
+                  >
+                    <Tooltip permanent direction="top" offset={[0, -10]}>
+                      {a.firstname} — {a.service}
+                    </Tooltip>
                   </Marker>
                 ) : null
               ))}

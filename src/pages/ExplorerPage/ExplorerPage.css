@@ -173,3 +173,7 @@
     height: 260px !important;
   }
 }
+
+.artisan-marker {
+  filter: hue-rotate(150deg) saturate(2);
+}
