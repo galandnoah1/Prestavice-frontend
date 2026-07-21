@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet'
 import {
   Wrench, Zap, Hammer, Paintbrush, Building2, Snowflake,
-  Scissors, Sparkles, Cpu, FileCheck2,
+  Scissors, Sparkles, Cpu, FileCheck2, LucideComputer
 } from 'lucide-react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import L from 'leaflet'
@@ -51,7 +51,7 @@ const serviceIcons = {
   'Climatisation': Snowflake,
   'Coiffure': Scissors,
   'Ménage à domicile': Sparkles,
-  'Informatique/Electronique': Cpu,
+  'Informatique/Electronique': LucideComputer,
   'Certification et legalisation': FileCheck2,
 }
 
@@ -208,8 +208,8 @@ export default function ExplorerPage() {
                       },
                     }}
                   >
-                    <Tooltip permanent direction="right" offset={[0, -10]}>
-                      {a.firstname}
+                    <Tooltip permanent direction="right" offset={[0, -10]} >
+                      {a.firstname} {a.service}
                     </Tooltip>
                   </Marker>
                 ) : null
