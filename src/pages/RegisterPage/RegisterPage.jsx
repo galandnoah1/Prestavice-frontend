@@ -77,7 +77,7 @@ export default function RegisterPage() {
       } else if (err.code === 2 || err.code === 3) {
         setError('Impossible de récupérer votre position. Vérifiez votre connexion et réessayez.')
       } else {
-        setError(err.response?.data?.responseMessage || 'Une erreur est survenue')
+        setError(err.response?.data?.errorList[0] || 'Une erreur est survenue')
       }
     } finally {
       setLoading(false)
