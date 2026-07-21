@@ -220,21 +220,22 @@ export default function ExplorerPage() {
 
         {error && <p className="auth-error mt-16">{error}</p>}
 
-        {loading ? (
-          <p>Chargement...</p>
-        ) : pageResults.length > 0 ? (
-          <div className="artisan-grid explorer-grid mt-16">
-            {pageResults.map((a) => <ArtisanCard key={a.id} artisan={a} showBio />)}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <SearchX size={40} />
-            <h3>Aucun artisan trouvé</h3>
-            <p>Essayez d'élargir vos critères de recherche.</p>
-          </div>
+        {!proximityMode && (
+          loading ? (
+            <p>Chargement...</p>
+          ) : pageResults.length > 0 ? (
+            <div className="artisan-grid explorer-grid mt-16">
+              {pageResults.map((a) => <ArtisanCard key={a.id} artisan={a} showBio />)}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <SearchX size={40} />
+              <h3>Aucun artisan trouvé</h3>
+              <p>Essayez d'élargir vos critères de recherche.</p>
+            </div>
+          )
         )}
-
-        {totalPages > 1 && (
+        {!proximityMode && totalPages > 1 && (
           <div className="pagination">
             <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
               <ChevronLeft size={15} />
