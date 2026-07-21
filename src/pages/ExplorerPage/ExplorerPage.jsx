@@ -34,7 +34,7 @@ export default function ExplorerPage() {
   }, [])
 
   useEffect(() => {
-    if (proximityMode && userPosition) return // géré par handleUseLocation
+    if (proximityMode && userPosition) return
 
     setLoading(true)
     setError('')
@@ -45,7 +45,7 @@ export default function ExplorerPage() {
 
     fetchResults
       .then(setResults)
-      .catch(() => setError('Impossible de charger les artisans'))
+      .catch(() => setError(''))
       .finally(() => setLoading(false))
   }, [metier, ville, proximityMode, userPosition])
 
