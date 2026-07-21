@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { SlidersHorizontal, RotateCcw, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { SlidersHorizontal, RotateCcw, ChevronLeft, ChevronRight, SearchX, LocateFixed } from 'lucide-react'
 import ArtisanCard from '../../components/ArtisanCard/ArtisanCard.jsx'
 import { artisanService } from '../../services/artisanService.js'
 import { cityService } from '../../services/cityService.js'
 import { serviceService } from '../../services/serviceService.js'
+import 'leaflet/dist/leaflet.css'
 import './ExplorerPage.css'
 
 const PAGE_SIZE = 6
@@ -21,12 +23,19 @@ export default function ExplorerPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [proximityMode, setProximityMode] = useState(false)
+  const [userPosition, setUserPosition] = useState(null)
+  const [geoError, setGeoError] = useState('')
+  const [geoLoading, setGeoLoading] = useState(false)
+
   useEffect(() => {
     cityService.getAll().then(setVilles).catch(() => { })
     serviceService.getAll().then(setProfessions).catch(() => { })
   }, [])
 
   useEffect(() => {
+    if (proximityMode && userPosition) return // géré par handleUseLocation
+
     setLoading(true)
     setError('')
 
@@ -38,7 +47,39 @@ export default function ExplorerPage() {
       .then(setResults)
       .catch(() => setError('Impossible de charger les artisans'))
       .finally(() => setLoading(false))
-  }, [metier, ville])
+  }, [metier, ville, proximityMode, userPosition])
+
+  const handleUseLocation = () => {
+    setGeoError('')
+    setGeoLoading(true)
+
+    if (!navigator.geolocation) {
+      setGeoError('Géolocalisation non supportée par ce navigateur')
+      setGeoLoading(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        setUserPosition({ lat: latitude, lng: longitude })
+        setProximityMode(true)
+        setLoading(true)
+
+        artisanService.getNearby(latitude, longitude, 20)
+          .then(setResults)
+          .catch(() => setError('Impossible de charger les artisans à proximité'))
+          .finally(() => {
+            setLoading(false)
+            setGeoLoading(false)
+          })
+      },
+      () => {
+        setGeoError('Impossible de récupérer votre position. Vérifiez les autorisations de votre navigateur.')
+        setGeoLoading(false)
+      }
+    )
+  }
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
   const pageResults = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -46,6 +87,8 @@ export default function ExplorerPage() {
   const reset = () => {
     setMetier('')
     setVille('')
+    setProximityMode(false)
+    setUserPosition(null)
     setPage(1)
   }
 
@@ -54,43 +97,71 @@ export default function ExplorerPage() {
       <div className="container">
         <div className="section-header explorer-header">
           <span className="section-eyebrow">Explorer</span>
-          <h2>Trouvez le prestataire qu'il vous faut</h2>
+          <h2>Trouvez l'artisan qu'il vous faut</h2>
           <p>{results.length} artisan{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}</p>
         </div>
 
-        <div className="explorer-filters ">
+        <div className="explorer-filters card">
           <div className="explorer-filters-title"><SlidersHorizontal size={16} /> Filtres</div>
           <div className="explorer-filters-grid">
-            <select className="form-select" value={metier} onChange={(e) => { setMetier(e.target.value); setPage(1) }}>
+            <select className="form-select" value={metier} disabled={proximityMode} onChange={(e) => { setMetier(e.target.value); setPage(1) }}>
               <option value="">Tous les métiers</option>
               {professions.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
-            <select className="form-select" value={ville} onChange={(e) => { setVille(e.target.value); setPage(1) }}>
+            <select className="form-select" value={ville} disabled={proximityMode} onChange={(e) => { setVille(e.target.value); setPage(1) }}>
               <option value="">Toutes les villes</option>
               {villes.map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
-            <button className="btn btn-outline" onClick={reset}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={handleUseLocation} disabled={geoLoading}>
+              <LocateFixed size={15} /> {geoLoading ? 'Localisation...' : 'Près de moi'}
+            </button>
+            <button className="btn btn-outline btn-sm" onClick={reset}>
               <RotateCcw size={15} /> Réinitialiser
             </button>
           </div>
           {(metier && !ville) || (!metier && ville) ? (
-            <p className="form-help mt-8">Sélectionnez un métier et une ville pour filtrer, ou aucun des deux pour voir tous les prestataires.</p>
+            <p className="form-help mt-8">Sélectionnez un métier ET une ville pour filtrer, ou aucun des deux pour voir tous les artisans.</p>
           ) : null}
+          {geoError && <p className="auth-error mt-8">{geoError}</p>}
         </div>
 
-        {error && <p className="auth-error">{error}</p>}
+        {proximityMode && userPosition && (
+          <div className="explorer-map card mt-16">
+            <MapContainer center={[userPosition.lat, userPosition.lng]} zoom={12} style={{ height: '360px', width: '100%', borderRadius: 'var(--radius-lg)' }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; OpenStreetMap contributors'
+              />
+              <Marker position={[userPosition.lat, userPosition.lng]}>
+                <Popup>Votre position</Popup>
+              </Marker>
+              {results.map((a) => (
+                a.latitude && a.longitude ? (
+                  <Marker key={a.id} position={[a.latitude, a.longitude]}>
+                    <Popup>
+                      {a.firstname} {a.lastname} — {a.service}
+                      {a.distanceKm != null && <><br />{a.distanceKm.toFixed(1)} km</>}
+                    </Popup>
+                  </Marker>
+                ) : null
+              ))}
+            </MapContainer>
+          </div>
+        )}
+
+        {error && <p className="auth-error mt-16">{error}</p>}
 
         {loading ? (
           <p>Chargement...</p>
         ) : pageResults.length > 0 ? (
-          <div className="artisan-grid explorer-grid">
+          <div className="artisan-grid explorer-grid mt-16">
             {pageResults.map((a) => <ArtisanCard key={a.id} artisan={a} showBio />)}
           </div>
         ) : (
           <div className="empty-state">
             <SearchX size={40} />
-            <h3>Aucun prestataire trouvé</h3>
-            <p>Nous sommes en pleine campagne de communication pour attirer davantage de prestataire.</p>
+            <h3>Aucun artisan trouvé</h3>
+            <p>Essayez d'élargir vos critères de recherche.</p>
           </div>
         )}
 

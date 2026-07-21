@@ -50,6 +50,8 @@ export default function RegisterPage() {
           role: 'ROLE_USER',
         })
       } else {
+        const position = await getCurrentPosition()
+
         await artisanService.register({
           user: {
             firstname: form.firstname,
@@ -62,16 +64,37 @@ export default function RegisterPage() {
           city: form.ville,
           service: form.profession,
           bio: form.bio,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
         })
       }
 
       await login(form.email, form.password)
       navigate(role === 'artisan' ? '/dashboard-artisan' : '/dashboard-client')
     } catch (err) {
-      setError(err.response?.data?.responseMessage || 'Une erreur est survenue')
+      if (err.code === 1) {
+        setError('La géolocalisation est obligatoire pour créer un profil artisan. Veuillez autoriser l\'accès à votre position.')
+      } else if (err.code === 2 || err.code === 3) {
+        setError('Impossible de récupérer votre position. Vérifiez votre connexion et réessayez.')
+      } else {
+        setError(err.response?.data?.responseMessage || 'Une erreur est survenue')
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject({ code: 0, message: 'Géolocalisation non supportée par ce navigateur' })
+        return
+      }
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      })
+    })
   }
 
   if (!role) {

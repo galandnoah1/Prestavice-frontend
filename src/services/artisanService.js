@@ -27,4 +27,11 @@ export const artisanService = {
     const response = await axiosInstance.get(`/artisans/${id}`);
     return response.data.data;
   },
+
+  async getNearby(lat, lng, radiusKm = 20) {
+    const response = await axiosInstance.get("/artisans/nearby", {
+      params: { lat, lng, radiusKm },
+    });
+    return response.data.data;
+  },
 };
